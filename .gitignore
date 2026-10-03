@@ -1,0 +1,14 @@
+# object files 
+*.o
+*.elf
+*.bin
+test_runner
+test_runner.exe
+
+# python cache
+__pycache__/
+.pytest_cache/
+
+# VSCode files
+.vscode/
+.idea/
