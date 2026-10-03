@@ -1,0 +1,21 @@
+CC = arm-none-eabi-gcc
+CFLAGS = -mcpu=cortex-m3 -mthumb -Wall -Wextra -Werror -O2 -nostdlib -ffreestanding -Iinclude
+LDFLAGS = -T linker.ld -nostdlib
+
+SRCS = src/startup.c src/hal_uart.c src/fsm.c src/protocol.c src/main.c
+OBJS = $(SRCS:.c=.o)
+TARGET = firmware.elf
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f src/*.o $(TARGET) test_runner test_runner.exe
+
+run-socket: $(TARGET)
+	qemu-system-arm -M lm3s6965evb -nographic -serial tcp:localhost:5555,server,nowait -kernel $(TARGET)
