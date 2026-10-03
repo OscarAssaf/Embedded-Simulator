@@ -113,3 +113,29 @@ parse_status_t protocol_parse_byte(uint8_t byte, packet_t *out_pkt) {
     state = PARSE_WAIT_SOF;
     return PARSE_STATUS_IN_PROGRESS;
 }
+
+void protocol_send_nack(uint8_t reason, void (*write_fn)(const uint8_t*, uint16_t)) {
+    protocol_send_packet(MSG_TYPE_ACK_NACK, &reason, 1, write_fn);
+}
+
+void protocol_send_packet(uint8_t msg_type, const uint8_t *payload, uint8_t length, void (*write_fn)(const uint8_t*, uint16_t)) {
+    uint8_t header[3] = { PROTOCOL_SOF, msg_type, length };
+    write_fn(header, 3);
+
+    uint8_t crc_calc_buf[2] = { msg_type, length };
+    uint16_t crc = crc16_compute(crc_calc_buf, 2);
+
+    if (length > 0 && payload != 0) {
+        write_fn(payload, length);
+        for (uint8_t i = 0; i < length; i++) {
+            crc ^= (uint16_t)payload[i] << 8;
+            for (uint8_t b = 0; b < 8; b++) {
+                if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+                else crc <<= 1;
+            }
+        }
+    }
+
+    uint8_t crc_bytes[2] = { (uint8_t)(crc >> 8), (uint8_t)(crc & 0xFF) };
+    write_fn(crc_bytes, 2);
+}

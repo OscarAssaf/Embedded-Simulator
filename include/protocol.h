@@ -35,3 +35,18 @@ parse_status_t protocol_parse_byte(uint8_t byte, packet_t *out_pkt);
 const protocol_stats_t* protocol_get_stats(void);
 
 #endif
+
+typedef enum {
+    MSG_TYPE_TEMP_TELEMETRY = 0x01,
+    MSG_TYPE_STATUS_REPORT  = 0x02,
+    MSG_TYPE_ACK_NACK       = 0x03
+} msg_type_t;
+
+typedef enum {
+    NACK_INVALID_CRC     = 0x01,
+    NACK_PAYLOAD_TOO_BIG = 0x02,
+    NACK_UNKNOWN_TYPE    = 0x03
+} nack_reason_t;
+
+void protocol_send_packet(uint8_t msg_type, const uint8_t *payload, uint8_t length, void (*write_fn)(const uint8_t*, uint16_t));
+void protocol_send_nack(uint8_t reason, void (*write_fn)(const uint8_t*, uint16_t));
