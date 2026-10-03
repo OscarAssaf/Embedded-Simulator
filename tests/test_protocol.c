@@ -84,12 +84,12 @@ void test_recovery_after_bad_crc(void) {
 }
 
 int main(void) {
-    printf("=== Korande enhetstester for protokoll och parser ===\n");
+    printf("=== Running protocol and parser unit tests ===\n");
     test_valid_frame();
     test_corrupted_crc();
     test_length_overflow();
     test_recovery_from_garbage();
     test_recovery_after_bad_crc();
-    printf("Alla tester lyckades!\n");
+    printf("All unit tests passed successfully!\n");
     return 0;
 }
